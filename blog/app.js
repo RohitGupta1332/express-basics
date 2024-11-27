@@ -89,7 +89,7 @@ app.post("/post", isLoggedIn, async (req, res) => {
         let createdPost = await Post.create({
             title,
             content,
-            userId: req.user._id
+            user: req.user.userId
         });
 
         let user = await User.findOne({ email: req.user.email });
@@ -101,6 +101,37 @@ app.post("/post", isLoggedIn, async (req, res) => {
         res.status(500).send(error);
     }
 });
+
+app.post("/like/:id", isLoggedIn, async (req, res) => {
+    try{
+        let post = await Post.findOne({_id: req.params.id});
+
+        if(!post){
+            return res.status(404).send("Post not found");
+        }
+        console.log(post)
+        post.likes.push(req.user.userId);
+        await post.save();
+
+        return res.status(200).send("message liked successfully");
+    }
+    catch(error){
+        return res.status(500).send(error);
+    }
+});
+
+app.delete("/delete/:id", isLoggedIn, async(req, res) => {
+    try{
+        let deletePost = await Post.findByIdAndDelete({ _id: req.params.id});
+        if(deletePost){
+            return res.status(200).send("Post deleted");
+        }
+        return res.status(404).send("Post not found");
+    }
+    catch(error){
+        return res.status(500).send(error);
+    }
+})
 
 function isLoggedIn(req, res, next) {
     if (req.cookies.token === "") {
@@ -115,6 +146,7 @@ function isLoggedIn(req, res, next) {
         return res.status(401).send("Unauthorosed");
     }
 }
+
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');

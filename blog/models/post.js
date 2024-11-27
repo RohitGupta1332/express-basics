@@ -7,10 +7,16 @@ const postSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    author: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+    },
+    likes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "user"
+        }
+    ]
 });
 
 export const Post = mongoose.model("post", postSchema); 
